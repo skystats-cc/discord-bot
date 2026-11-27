@@ -3,13 +3,17 @@ import { SkystatsApiError } from './api.js';
 import { commandMap } from './commands/index.js';
 import { config } from './config.js';
 import { startOutageAlerts } from './alerts/outage.js';
+import { roleSyncEnabled, startRoleSync } from './roles/sync.js';
 
-// Slash commands only need the Guilds intent (no privileged intents).
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+// Role sync needs the Server Members intent (privileged; enable it in the developer portal).
+const client = new Client({
+  intents: roleSyncEnabled() ? [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] : [GatewayIntentBits.Guilds],
+});
 
 client.once(Events.ClientReady, (c) => {
   console.log(`Logged in as ${c.user.tag} (${commandMap.size} commands)`);
   startOutageAlerts(c);
+  startRoleSync(c);
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {

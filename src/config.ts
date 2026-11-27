@@ -7,6 +7,13 @@ const schema = z.object({
   DISCORD_GUILD_ID: z.string().optional().transform((v) => v || undefined),
   SKYSTATS_API_URL: z.string().url().default('http://localhost:3000'),
   SKYSTATS_WEB_URL: z.string().url().default('https://skystats.cc'),
+  // Lets the bot act for linked Discord users (internal network only). Empty = account commands off.
+  BOT_API_KEY: z.string().default(''),
+  // Role sync in the SkyStats server (all optional; roles only for members who opted in)
+  ROLE_SYNC_GUILD_ID: z.string().default(''),
+  LINKED_ROLE_ID: z.string().default(''),
+  PRO_ROLE_ID: z.string().default(''),
+  MAX_ROLE_ID: z.string().default(''),
   // Channels that get free Hypixel outage alerts (comma-separated channel ids)
   STATUS_ALERT_CHANNEL_IDS: z
     .string()
