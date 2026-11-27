@@ -1,5 +1,5 @@
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
-import { api, ApiError, type BazaarProduct } from '../api.js';
+import { api, SkystatsApiError, type BazaarProduct } from '../api.js';
 import { coins, percent } from '../format.js';
 import type { Command } from './types.js';
 
@@ -7,7 +7,7 @@ import type { Command } from './types.js';
 let cache: { at: number; products: BazaarProduct[] } | null = null;
 async function products() {
   if (!cache || Date.now() - cache.at > 60_000) {
-    cache = { at: Date.now(), products: (await api.bazaarList()).products };
+    cache = { at: Date.now(), products: (await api.bazaar.list()).products };
   }
   return cache.products;
 }
@@ -41,10 +41,10 @@ export const bazaar: Command = {
     // Accept either an id from autocomplete or free text
     let product: BazaarProduct;
     try {
-      product = await api.bazaarProduct(input.trim().replace(/\s+/g, '_'));
+      product = await api.bazaar.get(input.trim().replace(/\s+/g, '_'));
     } catch (err) {
-      if (!(err instanceof ApiError) || err.status !== 404) throw err;
-      const { products: found } = await api.bazaarList(input);
+      if (!(err instanceof SkystatsApiError) || err.status !== 404) throw err;
+      const { products: found } = await api.bazaar.list(input);
       if (!found[0]) {
         await interaction.editReply(`Couldn't find a bazaar item matching **${input}**.`);
         return;
@@ -52,7 +52,7 @@ export const bazaar: Command = {
       product = found[0];
     }
 
-    const { snapshots } = await api.bazaarHistory(product.id, 7).catch(() => ({ snapshots: [] }));
+    const { snapshots } = await api.bazaar.history(product.id, 7).catch(() => ({ snapshots: [] }));
     const oldest = snapshots[0];
     const change = oldest ? percent(oldest.buyPrice, product.buyPrice) : 'not enough data yet';
 

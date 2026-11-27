@@ -1,5 +1,5 @@
 import { Client, Events, GatewayIntentBits, MessageFlags } from 'discord.js';
-import { ApiError } from './api.js';
+import { SkystatsApiError } from './api.js';
 import { commandMap } from './commands/index.js';
 import { config } from './config.js';
 
@@ -25,7 +25,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
   } catch (err) {
     console.error(`/${interaction.commandName} failed`, err);
     const content =
-      err instanceof ApiError && (err.status === 0 || err.status >= 500)
+      err instanceof SkystatsApiError && (err.unreachable || err.status >= 500)
         ? "⚠️ Couldn't reach the SkyStats API. Try again in a moment."
         : '⚠️ Something went wrong running that command.';
     if (interaction.deferred || interaction.replied) {
