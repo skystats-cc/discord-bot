@@ -1,15 +1,18 @@
 import { Client, Events, GatewayIntentBits, MessageFlags } from 'discord.js';
 import { SkystatsApiError } from './api.js';
-import { commandMap } from './commands/index.js';
+import { commandMap, contextMenuMap } from './commands/index.js';
 import { config } from './config.js';
 import { startDmDelivery, startNewsPosts } from './alerts/delivery.js';
 import { startLiveBazaar } from './alerts/liveBazaar.js';
+import { startServerBoards } from './alerts/serverBoards.js';
 import { startOutageAlerts } from './alerts/outage.js';
 import { roleSyncEnabled, startRoleSync } from './roles/sync.js';
 
 // Role sync needs the Server Members intent (privileged; enable it in the developer portal).
 const client = new Client({
-  intents: roleSyncEnabled() ? [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] : [GatewayIntentBits.Guilds],
+  intents: roleSyncEnabled() || config.SERVER_LEADERBOARD_CHANNEL_IDS.length || config.MEMBERS_INTENT
+    ? [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers]
+    : [GatewayIntentBits.Guilds],
 });
 
 client.once(Events.ClientReady, (c) => {
@@ -19,11 +22,16 @@ client.once(Events.ClientReady, (c) => {
   startDmDelivery(c);
   startNewsPosts(c);
   startLiveBazaar(c);
+  startServerBoards(c);
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
   if (interaction.isAutocomplete()) {
     await commandMap.get(interaction.commandName)?.autocomplete?.(interaction).catch(console.error);
+    return;
+  }
+  if (interaction.isUserContextMenuCommand()) {
+    await contextMenuMap.get(interaction.commandName)?.execute(interaction).catch(console.error);
     return;
   }
   if (!interaction.isChatInputCommand()) return;

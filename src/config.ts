@@ -11,6 +11,13 @@ const schema = z.object({
   SKYSTATS_PUBLIC_API_URL: z.string().url().default('https://api.skystats.cc'),
   // Channel with a self-updating "biggest moves" message (optional)
   LIVE_BAZAAR_CHANNEL_ID: z.string().default(''),
+  // Ask for the Server Members intent (needed for "/leaderboard scope:This server")
+  MEMBERS_INTENT: z.enum(['true', 'false']).default('false').transform((v) => v === 'true'),
+  // Channels that get this server's weekly leaderboard on Sundays (needs the Server Members intent)
+  SERVER_LEADERBOARD_CHANNEL_IDS: z
+    .string()
+    .default('')
+    .transform((v) => v.split(',').map((s) => s.trim()).filter(Boolean)),
   // Lets the bot act for linked Discord users (internal network only). Empty = account commands off.
   BOT_API_KEY: z.string().default(''),
   // Role sync in the SkyStats server (all optional; roles only for members who opted in)
