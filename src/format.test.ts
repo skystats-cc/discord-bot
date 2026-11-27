@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { coins, percent } from './format.js';
+import { coins, percent, sparkline } from './format.js';
 
 describe('coins', () => {
   it('abbreviates', () => {
@@ -16,5 +16,13 @@ describe('percent', () => {
     expect(percent(100, 110)).toBe('+10.0%');
     expect(percent(100, 95)).toBe('-5.0%');
     expect(percent(0, 5)).toBe('n/a');
+  });
+});
+
+describe('sparkline', () => {
+  it('maps values to block heights', () => {
+    expect(sparkline([0, 7])).toBe('▁█');
+    expect(sparkline([5, 5, 5])).toBe('▁▁▁');
+    expect(sparkline([])).toBe('');
   });
 });

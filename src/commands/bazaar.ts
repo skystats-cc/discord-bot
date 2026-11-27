@@ -1,6 +1,7 @@
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { api, SkystatsApiError, type BazaarProduct } from '../api.js';
 import { coins, percent } from '../format.js';
+import { viewOnSite } from '../links.js';
 import type { Command } from './types.js';
 
 // Cache the product list for autocomplete (Discord gives us 3s to answer).
@@ -71,6 +72,6 @@ export const bazaar: Command = {
       .setFooter({ text: `${product.id} · SkyStats.cc` })
       .setTimestamp(new Date(product.updatedAt));
 
-    await interaction.editReply({ embeds: [embed] });
+    await interaction.editReply({ embeds: [embed], components: [viewOnSite('/', 'bazaar') /* TODO: /bazaar/:id once the bazaar page ships */] });
   },
 };

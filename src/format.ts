@@ -23,3 +23,13 @@ export function percent(from: number, to: number): string {
   const p = ((to - from) / from) * 100;
   return `${p >= 0 ? '+' : ''}${p.toFixed(1)}%`;
 }
+
+const BLOCKS = '▁▂▃▄▅▆▇█';
+/** Text sparkline, e.g. ▁▃▅▇█ */
+export function sparkline(values: number[]): string {
+  if (values.length === 0) return '';
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const span = max - min || 1;
+  return values.map((v) => BLOCKS[Math.round(((v - min) / span) * (BLOCKS.length - 1))]).join('');
+}

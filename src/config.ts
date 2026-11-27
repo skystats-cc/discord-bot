@@ -6,6 +6,12 @@ const schema = z.object({
   DISCORD_CLIENT_ID: z.string().min(1, 'DISCORD_CLIENT_ID is required'),
   DISCORD_GUILD_ID: z.string().optional().transform((v) => v || undefined),
   SKYSTATS_API_URL: z.string().url().default('http://localhost:3000'),
+  SKYSTATS_WEB_URL: z.string().url().default('https://skystats.cc'),
+  // Channels that get free Hypixel outage alerts (comma-separated channel ids)
+  STATUS_ALERT_CHANNEL_IDS: z
+    .string()
+    .default('')
+    .transform((v) => v.split(',').map((s) => s.trim()).filter(Boolean)),
 });
 
 const parsed = schema.safeParse(process.env);
