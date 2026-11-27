@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { coins, percent, sparkline } from './format.js';
+import { coins, parseCoins, percent, sparkline } from './format.js';
 
 describe('coins', () => {
   it('abbreviates', () => {
@@ -24,5 +24,14 @@ describe('sparkline', () => {
     expect(sparkline([0, 7])).toBe('▁█');
     expect(sparkline([5, 5, 5])).toBe('▁▁▁');
     expect(sparkline([])).toBe('');
+  });
+});
+
+describe('parseCoins', () => {
+  it('reads shorthand', () => {
+    expect(parseCoins('1.5m')).toBe(1.5e6);
+    expect(parseCoins('20,000')).toBe(20000);
+    expect(parseCoins('2B')).toBe(2e9);
+    expect(parseCoins('lots')).toBeNull();
   });
 });

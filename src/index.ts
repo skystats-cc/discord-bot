@@ -2,6 +2,7 @@ import { Client, Events, GatewayIntentBits, MessageFlags } from 'discord.js';
 import { SkystatsApiError } from './api.js';
 import { commandMap } from './commands/index.js';
 import { config } from './config.js';
+import { startDmDelivery, startNewsPosts } from './alerts/delivery.js';
 import { startOutageAlerts } from './alerts/outage.js';
 import { roleSyncEnabled, startRoleSync } from './roles/sync.js';
 
@@ -14,6 +15,8 @@ client.once(Events.ClientReady, (c) => {
   console.log(`Logged in as ${c.user.tag} (${commandMap.size} commands)`);
   startOutageAlerts(c);
   startRoleSync(c);
+  startDmDelivery(c);
+  startNewsPosts(c);
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {

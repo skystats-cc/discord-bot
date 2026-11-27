@@ -33,3 +33,11 @@ export function sparkline(values: number[]): string {
   const span = max - min || 1;
   return values.map((v) => BLOCKS[Math.round(((v - min) / span) * (BLOCKS.length - 1))]).join('');
 }
+
+/** Parses "1.5m", "20k", "1,200" */
+export function parseCoins(s: string): number | null {
+  const m = s.trim().toLowerCase().replace(/,/g, '').match(/^(\d+(?:\.\d+)?)([kmb]?)$/);
+  if (!m) return null;
+  return Number(m[1]) * ({ '': 1, k: 1e3, m: 1e6, b: 1e9 } as const)[m[2] as '' | 'k' | 'm' | 'b'];
+}
+
