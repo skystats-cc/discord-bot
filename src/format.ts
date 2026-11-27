@@ -1,5 +1,6 @@
 // 1234 -> "1.23k", 3_400_000 -> "3.4M", 1_100_000_000 -> "1.1B"
-export function coins(n: number): string {
+export function coins(n: number | null | undefined): string {
+  if (n === null || n === undefined) return '—';
   const abs = Math.abs(n);
   const units: [number, string][] = [
     [1e12, 'T'],

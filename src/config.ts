@@ -7,6 +7,10 @@ const schema = z.object({
   DISCORD_GUILD_ID: z.string().optional().transform((v) => v || undefined),
   SKYSTATS_API_URL: z.string().url().default('http://localhost:3000'),
   SKYSTATS_WEB_URL: z.string().url().default('https://skystats.cc'),
+  // Public API base, for chart images Discord fetches itself
+  SKYSTATS_PUBLIC_API_URL: z.string().url().default('https://api.skystats.cc'),
+  // Channel with a self-updating "biggest moves" message (optional)
+  LIVE_BAZAAR_CHANNEL_ID: z.string().default(''),
   // Lets the bot act for linked Discord users (internal network only). Empty = account commands off.
   BOT_API_KEY: z.string().default(''),
   // Role sync in the SkyStats server (all optional; roles only for members who opted in)
