@@ -2,6 +2,7 @@ import { alerts } from './alerts.js';
 import { bazaar } from './bazaar.js';
 import { bzHistory, craft, events, flip, mayor, mmm } from './market.js';
 import { ping } from './ping.js';
+import { coop, session } from './insight.js';
 import { link } from './link.js';
 import { me } from './me.js';
 import { privacy } from './privacy.js';
@@ -15,6 +16,6 @@ import type { Command } from './types.js';
 const bz: Command = { ...bazaar, data: { name: 'bz', toJSON: () => ({ ...bazaar.data.toJSON(), name: 'bz' }) } };
 
 // Add new commands here, then run `npm run deploy-commands`.
-export const commands: Command[] = [ping, bazaar, status, profile, privacy, me, link, subscribe, whois, alerts, bz, bzHistory, flip, craft, mmm, mayor, events];
+export const commands: Command[] = [ping, bazaar, status, profile, privacy, me, link, subscribe, whois, alerts, bz, bzHistory, flip, craft, mmm, mayor, events, session, coop];
 
 export const commandMap = new Map(commands.map((c) => [c.data.name, c]));

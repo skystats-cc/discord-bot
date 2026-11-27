@@ -15,7 +15,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@skystats/api-client": "github:skystats-cc/api-spec#v0.6.0",
+    "@skystats/api-client": "github:skystats-cc/api-spec#v0.7.0",
     "discord.js": "^14.16.3",
     "dotenv": "^16.4.7",
     "zod": "^3.24.1"

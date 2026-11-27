@@ -13,6 +13,7 @@ const LABELS: Record<keyof PrivacySettings, string> = {
   allowActivityPings: 'Let my co-op get activity alerts',
   discordPublic: 'Show my Minecraft name on Discord (/whois)',
   showTierRole: 'Show my plan as a role',
+  activityInsights: 'Label my sessions by activity',
 };
 
 export const privacy: Command = {
