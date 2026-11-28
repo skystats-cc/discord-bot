@@ -25,6 +25,10 @@ const schema = z.object({
   LINKED_ROLE_ID: z.string().default(''),
   PRO_ROLE_ID: z.string().default(''),
   MAX_ROLE_ID: z.string().default(''),
+  // Private team channel that receives /feedback (empty = /feedback is off)
+  FEEDBACK_CHANNEL_ID: z.string().default(''),
+  // Error tracking (Sentry or GlitchTip). Usernames, ids and message text are not sent.
+  SENTRY_DSN: z.string().default(''),
   // Channels that get free Hypixel outage alerts (comma-separated channel ids)
   STATUS_ALERT_CHANNEL_IDS: z
     .string()

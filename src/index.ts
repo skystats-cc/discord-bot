@@ -7,6 +7,11 @@ import { startLiveBazaar } from './alerts/liveBazaar.js';
 import { startServerBoards } from './alerts/serverBoards.js';
 import { startOutageAlerts } from './alerts/outage.js';
 import { roleSyncEnabled, startRoleSync } from './roles/sync.js';
+import { accountsEnabled } from './api.js';
+import { SYSTEM } from './channels.js';
+import { handleFeedbackModal } from './commands/feedback.js';
+import { startPresence } from './presence.js';
+import { captureError } from './sentry.js';
 
 // Role sync needs the Server Members intent (privileged; enable it in the developer portal).
 const client = new Client({
@@ -23,11 +28,21 @@ client.once(Events.ClientReady, (c) => {
   startNewsPosts(c);
   startLiveBazaar(c);
   startServerBoards(c);
+  startPresence(c);
+});
+
+// Removed from a server: forget its /setup settings
+client.on(Events.GuildDelete, (guild) => {
+  if (accountsEnabled()) void SYSTEM.bot.forgetGuild(guild.id).catch(() => {});
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
   if (interaction.isAutocomplete()) {
     await commandMap.get(interaction.commandName)?.autocomplete?.(interaction).catch(console.error);
+    return;
+  }
+  if (interaction.isModalSubmit()) {
+    await handleFeedbackModal(interaction).catch((err) => captureError(err, 'feedback'));
     return;
   }
   if (interaction.isUserContextMenuCommand()) {
@@ -43,6 +58,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     await command.execute(interaction);
   } catch (err) {
     console.error(`/${interaction.commandName} failed`, err);
+    if (!(err instanceof SkystatsApiError && err.status < 500)) captureError(err, interaction.commandName);
     const content =
       err instanceof SkystatsApiError && (err.unreachable || err.status >= 500)
         ? "⚠️ Couldn't reach the SkyStats API. Try again in a moment."

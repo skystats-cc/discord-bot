@@ -1,10 +1,11 @@
+import { channelsFor, SYSTEM } from '../channels.js';
 import type { Client } from 'discord.js';
 import { EmbedBuilder } from 'discord.js';
 import { accountsEnabled, userApi } from '../api.js';
 import { config } from '../config.js';
 
 // Service calls must name some Discord id; this one acts as nobody.
-const SYSTEM = userApi('00000000000000000');
+
 const COLORS: Record<string, number> = { outage: 0xe74c3c, patch: 0x3498db, price: 0xf5b942, anomaly: 0xe67e22, manipulation: 0xe74c3c, goal: 0x3ecf8e };
 
 /** DMs players their alerts. The server decides who gets what (opt-in, plan, quiet hours). */
@@ -39,13 +40,14 @@ export function startDmDelivery(client: Client) {
 
 /** Free: posts new SkyBlock patch notes to the alert channels once. */
 export function startNewsPosts(client: Client) {
-  if (!accountsEnabled() || config.STATUS_ALERT_CHANNEL_IDS.length === 0) return;
+  if (!accountsEnabled()) return;
   const tick = async () => {
     try {
       const { news } = await SYSTEM.bot.unannouncedNews();
+      const channels = news.length ? await channelsFor('news', config.STATUS_ALERT_CHANNEL_IDS) : [];
       for (const item of news) {
         const embed = new EmbedBuilder().setColor(0x3498db).setTitle(`📰 ${item.title}`.slice(0, 256)).setURL(item.id);
-        for (const id of config.STATUS_ALERT_CHANNEL_IDS) {
+        for (const id of channels) {
           const ch = await client.channels.fetch(id).catch(() => null);
           if (ch?.isSendable()) await ch.send({ embeds: [embed] }).catch(() => {});
         }

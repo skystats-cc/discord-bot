@@ -9,6 +9,11 @@ Discord bot for skystats.cc. Talks to the skystats server through its public `/v
 | `/ping` | Bot latency + whether the SkyStats API is reachable |
 | `/bazaar item:<name>` | Live instabuy/instasell, margin, weekly volume, 7-day change. Item names autocomplete. |
 | `/status` | status.hypixel.net summary: SkyBlock status, components with issues, incidents |
+| `/setup` | Server admins (Manage Server): pick channels for outage alerts, patch notes, the weekly board and live bazaar, and the role `/verify` gives |
+| `/verify` | Get the server's verified role if your Discord is linked to SkyStats |
+| `/feedback` | Send an idea or bug report to the team's private channel (3 an hour) |
+
+Plus account, market, insight and social commands from earlier phases (see `src/commands/index.ts`).
 
 ## Setup
 
@@ -37,11 +42,12 @@ CI builds `ghcr.io/skystats-cc/discord-bot` on every merge to `main`. The `infra
 
 1. Create `src/commands/<name>.ts` exporting a `Command` (see `ping.ts` for the smallest example, `bazaar.ts` for autocomplete).
 2. Add it to the list in `src/commands/index.ts`.
-3. `npm run deploy-commands`.
+3. `npm run deploy-commands` (on merge to `main`, the "Sync slash commands" workflow does this; it needs the `DISCORD_TOKEN` and `DISCORD_CLIENT_ID` secrets in a `production` environment).
 
 Commands get data from `src/api.ts` only (the typed `@skystats/api-client` from the `api-spec` repo). Never call Hypixel directly from the bot.
 
-## TODO
+## Ops
 
-- Account linking via Discord auth, tier-aware responses.
-- Anomaly notifications (bazaar price spikes) pushed to channels.
+- The status line rotates every minute (prices, SkyBlock status, server count).
+- `SENTRY_DSN` turns on error tracking; only the command name is attached, never user ids or text.
+- When the bot is removed from a server, that server's `/setup` settings are deleted.

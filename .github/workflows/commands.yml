@@ -1,0 +1,27 @@
+name: Sync slash commands
+# After a merge to main that changes commands, register them with Discord so the live bot and its
+# commands never drift apart. Needs repo secrets DISCORD_TOKEN and DISCORD_CLIENT_ID.
+on:
+  push:
+    branches: [main]
+    paths: ['src/commands/**', 'src/deploy-commands.ts']
+  workflow_dispatch:
+
+concurrency: { group: slash-commands, cancel-in-progress: false }
+
+jobs:
+  deploy-commands:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run deploy-commands
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}

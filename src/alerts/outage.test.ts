@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('../config.js', () => ({ config: { SKYSTATS_WEB_URL: 'https://skystats.cc', STATUS_ALERT_CHANNEL_IDS: [] } }));
-vi.mock('../api.js', () => ({ api: {} }));
+vi.mock('../api.js', () => ({ api: {}, userApi: () => ({}), accountsEnabled: () => false }));
 const { skyblockDown } = await import('./outage.js');
 
 const base = { description: '', incidents: [], checkedAt: null };

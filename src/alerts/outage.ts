@@ -2,6 +2,7 @@ import type { Client } from 'discord.js';
 import { EmbedBuilder } from 'discord.js';
 import { api, type HypixelStatus } from '../api.js';
 import { config } from '../config.js';
+import { channelsFor } from '../channels.js';
 import { siteUrl } from '../links.js';
 
 /** True when SkyBlock itself is affected, or the whole network has a major incident. */
@@ -11,11 +12,10 @@ export function skyblockDown(s: HypixelStatus): boolean {
 }
 
 /**
- * Free for everyone: posts to the configured channels when SkyBlock goes down or recovers.
+ * Free for everyone: posts to the configured channels (.env and /setup) when SkyBlock goes down or recovers.
  * Only reacts to changes, so it never spams.
  */
 export function startOutageAlerts(client: Client) {
-  if (config.STATUS_ALERT_CHANNEL_IDS.length === 0) return;
   let wasDown: boolean | null = null;
 
   const tick = async () => {
@@ -40,7 +40,7 @@ async function post(client: Client, s: HypixelStatus, down: boolean) {
     .setDescription(s.incidents[0]?.name ?? s.description)
     .setURL(siteUrl('/', 'outage-alert'))
     .setTimestamp();
-  for (const id of config.STATUS_ALERT_CHANNEL_IDS) {
+  for (const id of await channelsFor('status', config.STATUS_ALERT_CHANNEL_IDS)) {
     const ch = await client.channels.fetch(id).catch(() => null);
     if (ch?.isSendable()) await ch.send({ embeds: [embed] }).catch((err) => console.warn('outage post failed', err));
   }

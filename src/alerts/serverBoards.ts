@@ -1,19 +1,21 @@
 import type { Client } from 'discord.js';
 import { EmbedBuilder } from 'discord.js';
 import { userApi } from '../api.js';
+import { channelsFor } from '../channels.js';
 import { config } from '../config.js';
 import { coins } from '../format.js';
 
-/** Every Sunday 18:00 UTC: post this server's weekly board to SERVER_LEADERBOARD_CHANNEL_IDS (opt-in players only) */
+/** Every Sunday 18:00 UTC: post each server's weekly board to its board channel (.env or /setup; opt-in players only) */
 export function startServerBoards(client: Client) {
-  if (config.SERVER_LEADERBOARD_CHANNEL_IDS.length === 0) return;
+  // Needs the Server Members intent to list members
+  if (!config.MEMBERS_INTENT && config.SERVER_LEADERBOARD_CHANNEL_IDS.length === 0) return;
   let lastPosted = '';
   const tick = async () => {
     const now = new Date();
     const key = now.toISOString().slice(0, 10);
     if (now.getUTCDay() !== 0 || now.getUTCHours() !== 18 || lastPosted === key) return;
     lastPosted = key;
-    for (const id of config.SERVER_LEADERBOARD_CHANNEL_IDS) {
+    for (const id of await channelsFor('board', config.SERVER_LEADERBOARD_CHANNEL_IDS)) {
       try {
         const ch = await client.channels.fetch(id);
         if (!ch?.isSendable() || !('guild' in ch) || !ch.guild) continue;

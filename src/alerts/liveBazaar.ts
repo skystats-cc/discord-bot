@@ -2,18 +2,23 @@ import type { Client, Message } from 'discord.js';
 import { EmbedBuilder } from 'discord.js';
 import { api } from '../api.js';
 import { config } from '../config.js';
+import { channelsFor } from '../channels.js';
 import { siteUrl } from '../links.js';
 
 const pct = (x: number) => `${x >= 0 ? '+' : ''}${(x * 100).toFixed(1)}%`;
 
-/** One message in LIVE_BAZAAR_CHANNEL_ID that edits itself every 5 minutes with the top movers. */
+/** One message per live-bazaar channel (.env or /setup) that edits itself every 5 minutes with the top movers. */
 export function startLiveBazaar(client: Client) {
-  if (!config.LIVE_BAZAAR_CHANNEL_ID) return;
-  let message: Message | null = null;
+  const messages = new Map<string, Message | null>();
 
   const tick = async () => {
+    const ids = await channelsFor('bazaar', config.LIVE_BAZAAR_CHANNEL_ID ? [config.LIVE_BAZAAR_CHANNEL_ID] : []);
+    for (const id of ids) await update(id);
+  };
+  const update = async (channelId: string) => {
+    let message = messages.get(channelId) ?? null;
     try {
-      const ch = await client.channels.fetch(config.LIVE_BAZAAR_CHANNEL_ID);
+      const ch = await client.channels.fetch(channelId);
       if (!ch?.isSendable() || !('messages' in ch)) return;
       const [m, products] = await Promise.all([api.market.movers('24h'), api.bazaar.list()]);
       const names = new Map(products.products.map((p) => [p.id, p.name]));
@@ -32,9 +37,10 @@ export function startLiveBazaar(client: Client) {
       }
       if (message) await message.edit({ embeds: [embed] });
       else message = await ch.send({ embeds: [embed] });
+      messages.set(channelId, message);
     } catch (err) {
       console.warn('live bazaar update failed', err);
-      message = null;
+      messages.set(channelId, null);
     }
   };
   void tick();
