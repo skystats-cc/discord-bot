@@ -1,5 +1,6 @@
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { api } from '../api.js';
+import { viewOnSite } from '../links.js';
 import type { Command } from './types.js';
 
 const look: Record<string, { emoji: string; color: number }> = {
@@ -55,6 +56,6 @@ export const status: Command = {
     }
     if (s.checkedAt) embed.setFooter({ text: 'Checked' }).setTimestamp(new Date(s.checkedAt));
 
-    await interaction.editReply({ embeds: [embed] });
+    await interaction.editReply({ embeds: [embed], components: [viewOnSite('/', 'status')] });
   },
 };
